@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: nginx:1.17.10
+    container_name: reverse_proxy
+    volumes:
+      - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth-backend
+      - product-backend
+      - product-frontend
+    ports:
+      - 80:80
+
+  auth-backend:
+    image: auth-backend
+    container_name: auth-backend
+    build:
+      context: ./auth_backend
+    volumes:
+      - ./auth_backend/app:/code/app
+    ports:
+      - 8001:8001
+    restart: on-failure
+
+  product-backend:
+    image: product-backend
+    container_name: product-backend
+    build:
+      context: ./product_backend
+    volumes:
+      - ./product_backend/app:/code/app
+    ports:
+      - 8002:8002
+    restart: on-failure
+
+  product-frontend:
+    image: product-frontend
+    container_name: product-frontend
+    build:
+      context: ./product_frontend
+    volumes:
+      - ./product_frontend/app/src:/code/app/src
+    ports:
+      - 3000:3000
+    restart: on-failure
